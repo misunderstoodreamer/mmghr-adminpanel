@@ -12,8 +12,8 @@ st.set_page_config(page_title="Genç MMG İK Admin", page_icon="⚙️", layout=
 def check_password():
     """Kullanıcı doğru şifreyi girdiyse True döner ve sayfayı açar."""
     def password_entered():
-        # ŞİFRENİ BURADAN DEĞİŞTİREBİLİRSİN:
-        if st.session_state["password"] == "mmg1996":
+        # ŞİFREYİ ARTIK KODDAN DEĞİL, GİZLİ KASADAN (SECRETS) OKUYORUZ:
+        if st.session_state["password"] == st.secrets["admin_password"]:
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # Güvenlik için şifreyi hafızadan sil
         else:
