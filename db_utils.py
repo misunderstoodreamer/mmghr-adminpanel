@@ -12,7 +12,16 @@ SCOPE = [
 
 @st.cache_resource
 def get_client():
-    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCOPE)
+    # 1. BULUT KONTROLÜ (Streamlit Cloud Secrets)
+    if "gcp_service_account" in st.secrets:
+        # st.secrets'ı dict'e çevirip JSON gibi okutuyoruz
+        creds_dict = dict(st.secrets["gcp_service_account"])
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    
+    # 2. LOKAL KONTROL (Kendi bilgisayarımız)
+    else:
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCOPE)
+        
     return gspread.authorize(creds)
 
 def get_data(sheet_name, worksheet_name):
