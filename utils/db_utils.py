@@ -39,6 +39,35 @@ def append_data(sheet_name, worksheet_name, df):
     df = df.fillna("") 
     sheet.append_rows(df.values.tolist())
 
+def delete_rows_by_value(sheet_name, worksheet_name, column_name, value):
+    """Belirtilen kolonda value ile eşleşen tüm satırları siler. Silinen satır sayısını döner."""
+    client = get_client()
+    sheet = client.open(sheet_name).worksheet(worksheet_name)
+
+    all_values = sheet.get_all_values()
+    if not all_values:
+        return 0
+
+    headers = all_values[0]
+    if column_name not in headers:
+        return 0
+
+    col_idx = headers.index(column_name)
+
+    # Silinecek satır numaralarını topla (1-indexed; 1. satır başlık)
+    rows_to_delete = [
+        i + 2  # +2: satır 1 başlık, enumerate 0'dan başlıyor
+        for i, row in enumerate(all_values[1:])
+        if len(row) > col_idx and row[col_idx] == str(value)
+    ]
+
+    # Tersten silerek index kaymasını önle
+    for row_num in sorted(rows_to_delete, reverse=True):
+        sheet.delete_rows(row_num)
+
+    return len(rows_to_delete)
+
+
 def update_row_data(sheet_name, worksheet_name, row_index, df_row):
     """Belirtilen satırdaki veriyi Google Sheets üzerinde günceller."""
     client = get_client()
